@@ -69,11 +69,10 @@
           <div class="inline">
             <input type="number" id="dose" value="0.1" step="0.01">
             <select id="doseMassUnit">
-              <option value="mg" selected>mg</option>
-              <option value="µg">µg</option>
-              <option value="g">g</option>
+              <option value="mgkg" selected>mg/kg</option>
+              <option value="µgkg">µg/kg</option>
+              <option value="gkg">g/kg</option>
             </select>
-            <div class="unitBox">/ kg</div>
           </div>
         </div>
         <div class="result" id="result">Volume: - mL</div>
@@ -98,11 +97,11 @@
           <div class="inline">
             <input type="number" id="tdose" value="1" step="0.1">
             <select id="tdoseUnit">
-              <option value="mg" selected>mg</option>
-              <option value="µg">µg</option>
-              <option value="g">g</option>
+              <option value="mgkg" selected>mg/kg</option>
+              <option value="µgkg">µg/kg</option>
+              <option value="gkg">g/kg</option>
+              <option value="mgcat">mg/cat</option>
             </select>
-            <div class="unitBox">/ kg</div>
           </div>
         </div>
         <div>
@@ -165,10 +164,18 @@
 
       let vol = '-';
       if(!isNaN(w) && !isNaN(conc) && conc>0 && !isNaN(dose)){
-        const conc_mg_per_mL = conc * unitFactorMg[concUnit];
-        const dose_mg_per_kg = dose * unitFactorMg[doseMassUnit];
-        const totalDose_mg = dose_mg_per_kg * w;
-        vol = (totalDose_mg / conc_mg_per_mL).toFixed(2);
+        let totalDose_mg = 0;
+        if(doseMassUnit.endsWith('kg')){
+          const conc_mg_per_mL = conc * unitFactorMg[concUnit];
+          const baseUnit = doseMassUnit.replace('kg','');
+          const dose_mg_per_kg = dose * unitFactorMg[baseUnit];
+          totalDose_mg = dose_mg_per_kg * w;
+          vol = (totalDose_mg / conc_mg_per_mL).toFixed(2);
+        } else if(doseMassUnit==='mgcat') {
+          totalDose_mg = dose; // already mg per cat
+          const conc_mg_per_mL = conc * unitFactorMg[concUnit];
+          vol = (totalDose_mg / conc_mg_per_mL).toFixed(2);
+        }
       }
       document.getElementById('result').textContent = `Volume: ${vol} mL`;
     }
@@ -184,9 +191,15 @@
       const days = parseInt(document.getElementById('days').value);
 
       let res1 = '-', res2 = '-';
-      if(!isNaN(w) && !isNaN(dose) && !isNaN(tablet) && tablet>0){
-        const dose_mg_per_kg = dose * unitFactorMg[doseUnit];
-        const perDose_mg = dose_mg_per_kg * w;
+      if(!isNaN(dose) && !isNaN(tablet) && tablet>0){
+        let perDose_mg = 0;
+        if(doseUnit.endsWith('kg')){
+          const baseUnit = doseUnit.replace('kg','');
+          const dose_mg_per_kg = dose * unitFactorMg[baseUnit];
+          perDose_mg = dose_mg_per_kg * w;
+        } else if(doseUnit==='mgcat'){
+          perDose_mg = dose;
+        }
         const tablet_mg = tablet * unitFactorMg[tabletUnit];
         const nTabletsPerDose = perDose_mg / tablet_mg;
         res1 = `${nTabletsPerDose.toFixed(2)} 개`;
