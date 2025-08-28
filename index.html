@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>범용 약물 용량 계산기</title>
+  <style>
+    :root{ --blue:#2563eb; --bg:#f9fafb; --card:#fff; --border:#e5e7eb; --muted:#6b7280; --ink:#111827; --accent:#fbbf24 }
+    *{box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink);padding:24px}
+    h2{margin:0 0 16px;font-size:1.45rem;color:var(--blue);text-align:center;display:flex;align-items:center;justify-content:center;gap:8px}
+    h2 span.icon{font-size:1.5rem;color:var(--accent)}
+
+    /* Tabs */
+    .tabs{display:flex;justify-content:center;gap:10px;margin:0 auto 16px;flex-wrap:wrap}
+    .tab-btn{padding:10px 16px;border:1px solid var(--border);background:#fff;border-radius:10px;cursor:pointer;font-weight:600;color:#374151;transition:all .2s}
+    .tab-btn:hover{background:#f3f4f6}
+    .tab-btn[aria-selected="true"]{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 6px rgba(29,78,216,.25)}
+    .subnote{margin:-4px 0 14px;text-align:center;color:var(--muted);font-size:.85rem}
+
+    /* Cards */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;max-width:580px;margin:0 auto;box-shadow:0 3px 8px rgba(0,0,0,.06);transition:transform .2s}
+    .card:hover{transform:translateY(-2px)}
+    .row{display:flex;flex-direction:column;gap:14px}
+    label{font-size:.92rem;font-weight:600;margin-bottom:4px;color:#1e40af}
+    input, select{padding:9px;font-size:1rem;border:1px solid var(--border);border-radius:10px;text-align:center;background:#fff;transition:border .2s}
+    input:focus, select:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(37,99,235,.2)}
+    .inline{display:flex;gap:8px;align-items:center}
+    .unitBox{min-width:68px;text-align:center;font-weight:700;color:#374151}
+    .result{margin-top:12px;font-size:1.08rem;font-weight:700;color:#1e3a8a;text-align:center;line-height:1.5;padding:10px;border-radius:10px;background:#f1f5f9}
+
+    .tabpanel{display:none}
+    .tabpanel.show{display:block}
+  </style>
+</head>
+<body>
+  <h2><span class="icon">💊</span> 범용 약물 용량 계산기</h2>
+  <div class="tabs" role="tablist" aria-label="제형 선택">
+    <button id="tab-liquid" class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-liquid">액상 제형 (주사/용액)</button>
+    <button id="tab-tablet" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-tablet">정제·캡슐 (경구)</button>
+  </div>
+  <div class="subnote">원하는 제형 탭을 선택하면 해당 계산기만 표시됩니다.</div>
+
+  <!-- 액상 제형 탭패널 -->
+  <section id="panel-liquid" class="tabpanel show" role="tabpanel" aria-labelledby="tab-liquid">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="drug">약물 이름</label>
+          <input type="text" id="drug" placeholder="입력해주세요">
+        </div>
+        <div>
+          <label for="weight">체중 (kg)</label>
+          <input type="number" id="weight" value="1" min="0.1" step="0.1">
+        </div>
+        <div>
+          <label for="conc">약물 농도</label>
+          <div class="inline">
+            <input type="number" id="conc" value="1" step="0.01">
+            <select id="concUnit">
+              <option value="mg">mg/mL</option>
+              <option value="µg">µg/mL</option>
+              <option value="g">g/mL</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="dose">투여량</label>
+          <div class="inline">
+            <input type="number" id="dose" value="0.1" step="0.01">
+            <select id="doseMassUnit">
+              <option value="mg" selected>mg</option>
+              <option value="µg">µg</option>
+              <option value="g">g</option>
+            </select>
+            <div class="unitBox">/ kg</div>
+          </div>
+        </div>
+        <div class="result" id="result">Volume: - mL</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 정제/캡슐 탭패널 -->
+  <section id="panel-tablet" class="tabpanel" role="tabpanel" aria-labelledby="tab-tablet">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="tdrug">약물 이름</label>
+          <input type="text" id="tdrug" placeholder="입력해주세요">
+        </div>
+        <div>
+          <label for="tweight">체중 (kg)</label>
+          <input type="number" id="tweight" value="1" min="0.1" step="0.1">
+        </div>
+        <div>
+          <label for="tdose">투여량</label>
+          <div class="inline">
+            <input type="number" id="tdose" value="1" step="0.1">
+            <select id="tdoseUnit">
+              <option value="mg" selected>mg</option>
+              <option value="µg">µg</option>
+              <option value="g">g</option>
+            </select>
+            <div class="unitBox">/ kg</div>
+          </div>
+        </div>
+        <div>
+          <label for="tablet">정제 1개 함량</label>
+          <div class="inline">
+            <input type="number" id="tablet" value="50" step="1">
+            <select id="tabletUnit">
+              <option value="mg" selected>mg</option>
+              <option value="µg">µg</option>
+              <option value="g">g</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="freq">복용법</label>
+          <select id="freq">
+            <option value="1">SID (1일 1회)</option>
+            <option value="2">BID (1일 2회)</option>
+            <option value="3">TID (1일 3회)</option>
+            <option value="0.5">EOD (격일)</option>
+          </select>
+        </div>
+        <div>
+          <label for="days">투여 일수</label>
+          <input type="number" id="days" value="7" min="1" step="1">
+        </div>
+        <div class="result" id="tresult">1회 복용량: - 개<br>전체 필요량: - 개</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const unitFactorMg = { g: 1000, mg: 1, 'µg': 0.001 };
+
+    // --- Tabs ---
+    function showTab(which){
+      const map = { liquid:['tab-liquid','panel-liquid'], tablet:['tab-tablet','panel-tablet'] };
+      Object.entries(map).forEach(([k,[btnId,panelId]])=>{
+        const btn = document.getElementById(btnId);
+        const panel = document.getElementById(panelId);
+        const active = (k===which);
+        btn.setAttribute('aria-selected', active);
+        panel.classList.toggle('show', active);
+      });
+      setTimeout(()=>{
+        const first = which==='liquid' ? document.getElementById('drug') : document.getElementById('tdrug');
+        first?.focus();
+      }, 0);
+    }
+    document.getElementById('tab-liquid').addEventListener('click', ()=>showTab('liquid'));
+    document.getElementById('tab-tablet').addEventListener('click', ()=>showTab('tablet'));
+
+    // --- 액상 계산기 ---
+    function calc(){
+      const w = parseFloat(document.getElementById('weight').value);
+      const conc = parseFloat(document.getElementById('conc').value);
+      const concUnit = document.getElementById('concUnit').value;
+      const dose = parseFloat(document.getElementById('dose').value);
+      const doseMassUnit = document.getElementById('doseMassUnit').value;
+
+      let vol = '-';
+      if(!isNaN(w) && !isNaN(conc) && conc>0 && !isNaN(dose)){
+        const conc_mg_per_mL = conc * unitFactorMg[concUnit];
+        const dose_mg_per_kg = dose * unitFactorMg[doseMassUnit];
+        const totalDose_mg = dose_mg_per_kg * w;
+        vol = (totalDose_mg / conc_mg_per_mL).toFixed(2);
+      }
+      document.getElementById('result').textContent = `Volume: ${vol} mL`;
+    }
+
+    // --- 정제 계산기 ---
+    function calcTablet(){
+      const w = parseFloat(document.getElementById('tweight').value);
+      const dose = parseFloat(document.getElementById('tdose').value);
+      const doseUnit = document.getElementById('tdoseUnit').value;
+      const tablet = parseFloat(document.getElementById('tablet').value);
+      const tabletUnit = document.getElementById('tabletUnit').value || 'mg';
+      const freq = parseFloat(document.getElementById('freq').value);
+      const days = parseInt(document.getElementById('days').value);
+
+      let res1 = '-', res2 = '-';
+      if(!isNaN(w) && !isNaN(dose) && !isNaN(tablet) && tablet>0){
+        const dose_mg_per_kg = dose * unitFactorMg[doseUnit];
+        const perDose_mg = dose_mg_per_kg * w;
+        const tablet_mg = tablet * unitFactorMg[tabletUnit];
+        const nTabletsPerDose = perDose_mg / tablet_mg;
+        res1 = `${nTabletsPerDose.toFixed(2)} 개`;
+        if(!isNaN(freq) && !isNaN(days)){
+          let totalDoses = (freq === 0.5) ? Math.ceil(days/2) : freq * days;
+          const totalTablets = nTabletsPerDose * totalDoses;
+          res2 = `${totalTablets.toFixed(2)} 개`;
+        }
+      }
+      document.getElementById('tresult').innerHTML = `1회 복용량: ${res1}<br>전체 필요량: ${res2}`;
+    }
+
+    // 이벤트 바인딩
+    document.querySelectorAll('#drug, #weight, #conc, #concUnit, #dose, #doseMassUnit').forEach(el=>{
+      el.addEventListener('input', calc);
+      el.addEventListener('change', calc);
+    });
+    document.querySelectorAll('#tdrug, #tweight, #tdose, #tdoseUnit, #tablet, #tabletUnit, #freq, #days').forEach(el=>{
+      el.addEventListener('input', calcTablet);
+      el.addEventListener('change', calcTablet);
+    });
+
+    calc();
+    calcTablet();
+    showTab('liquid');
+  </script>
+</body>
+</html>
