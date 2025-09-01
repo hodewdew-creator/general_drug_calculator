@@ -47,16 +47,16 @@
       <div class="row">
         <div>
           <label for="drug">약물 이름</label>
-          <input type="text" id="drug" placeholder="입력해주세요">
+          <input type="text" id="drug">
         </div>
         <div>
           <label for="weight">체중 (kg)</label>
-          <input type="number" id="weight" value="1" min="0.1" step="0.1">
+          <input type="number" id="weight" placeholder="필수" min="0.1" step="0.1">
         </div>
         <div>
           <label for="conc">약물 농도</label>
           <div class="inline">
-            <input type="number" id="conc" value="1" step="0.01">
+            <input type="number" id="conc" placeholder="필수" step="0.01">
             <select id="concUnit">
               <option value="mg">mg/mL</option>
               <option value="µg">µg/mL</option>
@@ -75,7 +75,7 @@
             </select>
           </div>
         </div>
-        <div class="result" id="result">Volume: - mL</div>
+        <div class="result" id="result">용량(Volume): - mL</div>
       </div>
     </div>
   </section>
@@ -86,16 +86,16 @@
       <div class="row">
         <div>
           <label for="tdrug">약물 이름</label>
-          <input type="text" id="tdrug" placeholder="입력해주세요">
+          <input type="text" id="tdrug">
         </div>
         <div>
           <label for="tweight">체중 (kg)</label>
-          <input type="number" id="tweight" value="1" min="0.1" step="0.1">
+          <input type="number" id="tweight" placeholder="필수" min="0.1" step="0.1">
         </div>
         <div>
           <label for="tdose">투여량</label>
           <div class="inline">
-            <input type="number" id="tdose" value="1" step="0.1">
+            <input type="number" id="tdose" placeholder="필수" step="0.1">
             <select id="tdoseUnit">
               <option value="mgkg" selected>mg/kg</option>
               <option value="µgkg">µg/kg</option>
@@ -118,9 +118,9 @@
         <div>
           <label for="freq">복용법</label>
           <select id="freq">
-            <option value="1">SID (1일 1회)</option>
-            <option value="2">BID (1일 2회)</option>
-            <option value="3">TID (1일 3회)</option>
+            <option value="1">SID (일 1회)</option>
+            <option value="2">BID (일 2회)</option>
+            <option value="3">TID (일 3회)</option>
             <option value="0.5">EOD (격일)</option>
           </select>
         </div>
